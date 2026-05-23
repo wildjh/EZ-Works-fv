@@ -5,4 +5,4 @@ nixPkgs = ["jdk17", "maven"]
 cmds = ["mvn clean package -DskipTests -q"]
 
 [start]
-cmd = "java -Dserver.port=${PORT:-8080} -jar target/ezworks-backend-0.1.0-SNAPSHOT.jar"
+cmd = "java -Dserver.port=$PORT -jar target/ezworks-backend-0.1.0-SNAPSHOT.jar"
