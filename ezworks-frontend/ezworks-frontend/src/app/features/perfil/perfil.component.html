@@ -1,0 +1,26 @@
+<div class="page">
+  <h1>Mi perfil</h1>
+
+  @if (auth.currentUser(); as u) {
+    <p class="meta">{{ u.email }} · Roles: {{ u.roles.join(', ') }}</p>
+  }
+
+  @if (message()) {
+    <div class="alert alert-success">{{ message() }}</div>
+  }
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <form class="card" [formGroup]="form" (ngSubmit)="submit()">
+    <label>Nombre <input formControlName="nombre" /></label>
+    <label>Apellido <input formControlName="apellido" /></label>
+    <label>Teléfono <input formControlName="telefono" /></label>
+    @if (auth.hasRole('AYUDANTE')) {
+      <label>Bio (ayudante) <textarea formControlName="bio" rows="3"></textarea></label>
+    }
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Guardando…' : 'Guardar cambios' }}
+    </button>
+  </form>
+</div>

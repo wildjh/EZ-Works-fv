@@ -1,0 +1,24 @@
+<div class="shell">
+  <header class="topbar">
+    <a routerLink="/inicio" class="brand">EZWorks</a>
+    <nav class="nav">
+      <a routerLink="/inicio" routerLinkActive="active">Inicio</a>
+      @if (auth.hasRole('EMPLEADOR')) {
+        <a routerLink="/empleador/requerimientos" routerLinkActive="active">Mis trabajos</a>
+      }
+      @if (auth.hasRole('AYUDANTE')) {
+        <a routerLink="/ayudante/vacantes" routerLinkActive="active">Vacantes</a>
+      }
+      <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
+    </nav>
+    <div class="user-area">
+      @if (auth.currentUser(); as u) {
+        <span class="user-name">{{ u.nombre }} {{ u.apellido }}</span>
+      }
+      <button type="button" class="btn btn-ghost" (click)="logout()">Salir</button>
+    </div>
+  </header>
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,34 @@
+<div class="page chat-page">
+  <a routerLink="/inicio" class="back">← Inicio</a>
+  <h1>Chat</h1>
+
+  @if (loading()) {
+    <p class="muted">Cargando mensajes…</p>
+  } @else if (error() && !conv()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else {
+    @if (conv(); as c) {
+      <div class="messages card">
+        @if (c.mensajes.length === 0) {
+          <p class="muted empty-chat">Sin mensajes. ¡Saluda!</p>
+        }
+        @for (m of c.mensajes; track m.id) {
+          <div class="msg" [class.mine]="isMine(m.emisorUsuarioId)">
+            <span class="msg-author">{{ m.emisorNombre }}</span>
+            <p>{{ m.contenido }}</p>
+            <time>{{ m.enviadoEn | date:'short' }}</time>
+          </div>
+        }
+      </div>
+
+      @if (error()) {
+        <div class="alert alert-error">{{ error() }}</div>
+      }
+
+      <form class="composer" [formGroup]="form" (ngSubmit)="enviar()">
+        <input formControlName="contenido" placeholder="Escribe un mensaje…" autocomplete="off" />
+        <button type="submit" class="btn btn-primary" [disabled]="sending()">Enviar</button>
+      </form>
+    }
+  }
+</div>
