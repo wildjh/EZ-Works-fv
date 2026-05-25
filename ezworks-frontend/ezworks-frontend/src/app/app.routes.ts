@@ -1,9 +1,14 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { authGuard, guestGuard, rootRedirectGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [rootRedirectGuard],
+    children: [],
+  },
   {
     path: 'login',
     loadComponent: () =>
@@ -49,10 +54,26 @@ export const routes: Routes = [
         canActivate: [roleGuard('EMPLEADOR')],
       },
       {
+        path: 'empleador/requerimientos/:id/editar',
+        loadComponent: () =>
+          import('./features/empleador/requerimiento-form/requerimiento-form.component').then(
+            (m) => m.RequerimientoFormComponent
+          ),
+        canActivate: [roleGuard('EMPLEADOR')],
+      },
+      {
         path: 'empleador/requerimientos/:id',
         loadComponent: () =>
           import('./features/empleador/requerimiento-detalle/requerimiento-detalle.component').then(
             (m) => m.RequerimientoDetalleComponent
+          ),
+        canActivate: [roleGuard('EMPLEADOR')],
+      },
+      {
+        path: 'empleador/ayudantes/:id',
+        loadComponent: () =>
+          import('./features/empleador/ayudante-perfil/ayudante-perfil.component').then(
+            (m) => m.AyudantePerfilComponent
           ),
         canActivate: [roleGuard('EMPLEADOR')],
       },
@@ -71,11 +92,32 @@ export const routes: Routes = [
         canActivate: [roleGuard('AYUDANTE')],
       },
       {
+        path: 'ayudante/empleadores/:id',
+        loadComponent: () =>
+          import('./features/ayudante/empleador-perfil/empleador-perfil.component').then(
+            (m) => m.EmpleadorPerfilComponent
+          ),
+        canActivate: [roleGuard('AYUDANTE')],
+      },
+      {
+        path: 'admin/usuarios',
+        loadComponent: () =>
+          import('./features/admin/admin-usuarios/admin-usuarios.component').then(
+            (m) => m.AdminUsuariosComponent
+          ),
+        canActivate: [roleGuard('ADMIN')],
+      },
+      {
+        path: 'chats',
+        loadComponent: () =>
+          import('./features/chats/chats-list/chats-list.component').then((m) => m.ChatsListComponent),
+      },
+      {
         path: 'chat/:id',
         loadComponent: () =>
           import('./features/chat/chat.component').then((m) => m.ChatComponent),
       },
     ],
   },
-  { path: '**', redirectTo: 'inicio' },
+  { path: '**', canActivate: [rootRedirectGuard], children: [] },
 ];

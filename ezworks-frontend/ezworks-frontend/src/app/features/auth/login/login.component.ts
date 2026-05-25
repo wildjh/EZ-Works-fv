@@ -35,11 +35,12 @@ export class LoginComponent {
         this.auth.loadProfile().subscribe({
           next: () => {
             this.loading.set(false);
-            this.router.navigate(['/inicio']);
+            this.router.navigate([this.auth.defaultHomeRoute()]);
           },
           error: () => {
             this.loading.set(false);
-            this.router.navigate(['/inicio']);
+            this.auth.clearSession();
+            this.router.navigate(['/login']);
           },
         });
       },

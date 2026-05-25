@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   AuthResponse,
@@ -22,8 +23,9 @@ export class AuthService {
   private readonly base = `${environment.apiUrl}/api/auth`;
 
   readonly currentUser = signal<UsuarioResponse | null>(null);
-  readonly roles = signal<RolCodigo[]>(this.loadRoles());
-  readonly isLoggedIn = computed(() => !!this.getToken());
+  readonly roles = signal<RolCodigo[]>([]);
+  readonly sessionReady = signal(false);
+  readonly isLoggedIn = computed(() => this.sessionReady() && !!this.currentUser());
 
   login(body: LoginRequest) {
     return this.http.post<AuthResponse>(`${this.base}/login`, body).pipe(
@@ -38,12 +40,17 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearSession();
+    this.router.navigate(['/login']);
+  }
+
+  clearSession(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(ROLES_KEY);
     this.currentUser.set(null);
     this.roles.set([]);
-    this.router.navigate(['/login']);
+    this.sessionReady.set(false);
   }
 
   getToken(): string | null {
@@ -54,14 +61,47 @@ export class AuthService {
     return this.roles().includes(role);
   }
 
+  /** Ruta de inicio según rol (ERS / reglas de sesión). */
+  defaultHomeRoute(): string {
+    const roles = this.roles();
+    if (roles.includes('ADMIN') && roles.length === 1) {
+      return '/admin/usuarios';
+    }
+    if (roles.includes('EMPLEADOR') && !roles.includes('AYUDANTE')) {
+      return '/empleador/requerimientos';
+    }
+    if (roles.includes('AYUDANTE') && !roles.includes('EMPLEADOR')) {
+      return '/ayudante/vacantes';
+    }
+    return '/inicio';
+  }
+
+  ensureSession(): Observable<boolean> {
+    if (!this.getToken()) {
+      this.clearSession();
+      return of(false);
+    }
+    if (this.sessionReady() && this.currentUser()) {
+      return of(true);
+    }
+    return this.loadProfile().pipe(
+      map(() => true),
+      catchError(() => {
+        this.clearSession();
+        return of(false);
+      })
+    );
+  }
+
   loadProfile() {
-    return this.http
-      .get<UsuarioResponse>(`${environment.apiUrl}/api/usuarios/me`)
-      .pipe(tap((u) => {
+    return this.http.get<UsuarioResponse>(`${environment.apiUrl}/api/usuarios/me`).pipe(
+      tap((u) => {
         this.currentUser.set(u);
         this.roles.set(u.roles);
         localStorage.setItem(ROLES_KEY, JSON.stringify(u.roles));
-      }));
+        this.sessionReady.set(true);
+      })
+    );
   }
 
   private persistSession(res: AuthResponse): void {
@@ -70,13 +110,7 @@ export class AuthService {
     const roles = res.roles as RolCodigo[];
     localStorage.setItem(ROLES_KEY, JSON.stringify(roles));
     this.roles.set(roles);
-  }
-
-  private loadRoles(): RolCodigo[] {
-    try {
-      return JSON.parse(localStorage.getItem(ROLES_KEY) ?? '[]') as RolCodigo[];
-    } catch {
-      return [];
-    }
+    this.sessionReady.set(false);
+    this.currentUser.set(null);
   }
 }

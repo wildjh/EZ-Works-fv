@@ -40,3 +40,12 @@
   border-color: var(--primary);
   background: var(--primary-soft);
 }
+
+.action-card.admin-card {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.action-card.admin-card h2 {
+  color: #7c3aed;
+}

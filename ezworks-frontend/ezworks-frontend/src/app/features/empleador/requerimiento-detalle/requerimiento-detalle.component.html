@@ -28,20 +28,55 @@
       }
 
       @if (r.estado === 'BORRADOR') {
-        <button type="button" class="btn btn-primary" (click)="publicar()">Publicar vacante</button>
+        <div class="draft-actions">
+          <button type="button" class="btn btn-primary" (click)="publicar()">Publicar vacante</button>
+          <a [routerLink]="['/empleador/requerimientos', r.id, 'editar']" class="btn btn-ghost">Editar borrador</a>
+          <button type="button" class="btn btn-ghost danger" (click)="eliminarBorrador()">Eliminar borrador</button>
+        </div>
       }
 
-      @if (r.estado === 'PUBLICADO' && postulaciones().length > 0) {
+      @if (r.estado === 'PUBLICADO') {
+        <div class="draft-actions">
+          <button type="button" class="btn btn-ghost danger" (click)="cancelarTrabajo()">
+            Cancelar vacante
+          </button>
+        </div>
+      }
+
+      @if (r.estado === 'EN_MATCH') {
+        <div class="match-actions">
+          <button type="button" class="btn btn-primary" (click)="finalizarTrabajo()">
+            Marcar como completado
+          </button>
+          <button type="button" class="btn btn-ghost danger" (click)="cancelarTrabajo()">
+            Cancelar trabajo
+          </button>
+        </div>
+      }
+
+      @if ((r.estado === 'PUBLICADO' || r.estado === 'EN_MATCH') && postulaciones().length > 0) {
         <section class="section">
           <h2>Postulaciones</h2>
           <ul class="post-list">
             @for (p of postulaciones(); track p.id) {
-              <li class="card">
-                <strong>{{ p.ayudanteNombre }} {{ p.ayudanteApellido }}</strong>
-                <span class="badge-sm">{{ p.estado }}</span>
+              <li class="card post-item">
+                <div class="post-header">
+                  <app-user-avatar
+                    [url]="fotoPostulante(p)"
+                    [name]="p.ayudanteNombre + ' ' + p.ayudanteApellido"
+                    size="sm"
+                  />
+                  <div>
+                    <strong>{{ p.ayudanteNombre }} {{ p.ayudanteApellido }}</strong>
+                    <span class="badge-sm">{{ p.estado }}</span>
+                  </div>
+                </div>
                 @if (p.mensajePresentacion) {
                   <p>{{ p.mensajePresentacion }}</p>
                 }
+                <a [routerLink]="['/empleador/ayudantes', p.ayudanteId]" class="btn btn-ghost btn-sm">
+                  Ver perfil y evidencias
+                </a>
                 @if (p.estado === 'PENDIENTE') {
                   <button type="button" class="btn btn-primary btn-sm" (click)="match(p.id)">
                     Seleccionar (match)
@@ -53,8 +88,20 @@
         </section>
       }
 
-      @if (conversacionId(); as cid) {
-        <a [routerLink]="['/chat', cid]" class="btn btn-primary">Ir al chat</a>
+      @if (mostrarChatInicial()) {
+        <section class="section inline-chat card">
+          <h2>Primer contacto con el ayudante</h2>
+          <p class="muted">Envía un mensaje inicial. Después continúa la conversación en el menú Chats.</p>
+          @if (chatError()) {
+            <div class="alert alert-error">{{ chatError() }}</div>
+          }
+          <form class="composer" [formGroup]="chatForm" (ngSubmit)="enviarPrimerMensaje()">
+            <input formControlName="contenido" placeholder="Escribe tu mensaje…" autocomplete="off" />
+            <button type="submit" class="btn btn-primary" [disabled]="sending()">
+              {{ sending() ? 'Enviando…' : 'Enviar mensaje' }}
+            </button>
+          </form>
+        </section>
       }
     }
   }

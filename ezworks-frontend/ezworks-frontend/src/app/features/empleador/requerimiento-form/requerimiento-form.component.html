@@ -1,5 +1,5 @@
 <div class="page">
-  <h1>Nuevo requerimiento</h1>
+  <h1>{{ editId() ? 'Editar borrador' : 'Nuevo requerimiento' }}</h1>
 
   @if (error()) {
     <div class="alert alert-error">{{ error() }}</div>
@@ -22,7 +22,7 @@
     <label>Dirección exacta (opcional, se revela tras match) <input formControlName="direccionExacta" /></label>
 
     <button type="submit" class="btn btn-primary" [disabled]="loading()">
-      {{ loading() ? 'Guardando…' : 'Crear borrador' }}
+      {{ loading() ? 'Guardando…' : (editId() ? 'Guardar cambios' : 'Crear borrador') }}
     </button>
   </form>
 </div>

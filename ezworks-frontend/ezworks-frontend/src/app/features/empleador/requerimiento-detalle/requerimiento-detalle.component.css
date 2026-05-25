@@ -10,6 +10,24 @@
   margin-top: 1.5rem;
 }
 
+.match-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.draft-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.danger {
+  color: var(--error);
+}
+
 .post-list {
   list-style: none;
   padding: 0;
@@ -24,9 +42,16 @@
   gap: 0.5rem;
 }
 
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .badge-sm {
   font-size: 0.75rem;
   color: var(--text-muted);
+  display: block;
 }
 
 .btn-sm {
@@ -35,7 +60,19 @@
   font-size: 0.85rem;
 }
 
-.hint {
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
+.inline-chat .composer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.inline-chat .composer input {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .inline-chat .composer {
+    flex-direction: column;
+  }
 }

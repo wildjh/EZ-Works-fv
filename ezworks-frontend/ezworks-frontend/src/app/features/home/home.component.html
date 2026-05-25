@@ -19,6 +19,12 @@
         <p>Explora vacantes disponibles y postúlate.</p>
       </a>
     }
+    @if (auth.hasRole('ADMIN')) {
+      <a routerLink="/admin/usuarios" class="card action-card admin-card">
+        <h2>Administración</h2>
+        <p>Gestiona cuentas de usuarios: activar, suspender o banear.</p>
+      </a>
+    }
     <a routerLink="/perfil" class="card action-card">
       <h2>Mi perfil</h2>
       <p>Actualiza tus datos personales.</p>

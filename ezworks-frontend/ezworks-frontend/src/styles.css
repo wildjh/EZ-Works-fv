@@ -125,6 +125,11 @@ textarea:focus {
   color: var(--success);
 }
 
+.alert-info {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
 a {
   color: var(--primary);
 }

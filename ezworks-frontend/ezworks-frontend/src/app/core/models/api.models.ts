@@ -45,11 +45,49 @@ export interface UsuarioResponse {
   nombre: string;
   apellido: string;
   telefono?: string;
+  fotoPerfilUrl?: string;
   estadoCuenta: string;
+  saldoDeudaAcumulado?: number;
   roles: RolCodigo[];
   perfilEmpleador?: PerfilEmpleadorDto;
   perfilAyudante?: PerfilAyudanteDto;
   creadoEn: string;
+}
+
+export type EstadoCuenta = 'ACTIVO' | 'SUSPENDIDO' | 'BANEADO' | 'INHABILITADO_DEUDA';
+
+export interface AdminUsuario {
+  id: number;
+  email: string;
+  nombre: string;
+  apellido: string;
+  telefono?: string;
+  fotoPerfilUrl?: string;
+  estadoCuenta: EstadoCuenta;
+  roles: RolCodigo[];
+  creadoEn: string;
+}
+
+export interface PerfilAyudantePublico {
+  id: number;
+  usuarioId: number;
+  nombre: string;
+  apellido: string;
+  bio?: string;
+  fotoPerfilUrl?: string;
+  calificacionPromedio: number;
+  totalResenas: number;
+  evidencias: Evidencia[];
+}
+
+export interface PerfilEmpleadorPublico {
+  id: number;
+  usuarioId: number;
+  nombre: string;
+  apellido: string;
+  fotoPerfilUrl?: string;
+  calificacionPromedio: number;
+  totalResenas: number;
 }
 
 export interface UpdatePerfilRequest {
@@ -100,6 +138,7 @@ export interface Postulacion {
   ayudanteId: number;
   ayudanteNombre: string;
   ayudanteApellido: string;
+  ayudanteFotoPerfilUrl?: string;
   mensajePresentacion?: string;
   estado: EstadoPostulacion;
   creadoEn: string;
@@ -126,8 +165,43 @@ export interface Mensaje {
 export interface Conversacion {
   id: number;
   emparejamientoId: number;
+  requerimientoId?: number;
+  requerimientoEstado?: EstadoRequerimiento;
+  activa?: boolean;
   abiertaEn: string;
+  requerimientoTitulo?: string;
+  otroParticipanteNombre?: string;
+  otroParticipanteApellido?: string;
+  otroParticipanteFotoUrl?: string;
+  otroParticipantePerfilAyudanteId?: number;
+  otroParticipantePerfilEmpleadorId?: number;
+  empleadorUsuarioId?: number;
+  empleadorEnvioPrimerMensaje?: boolean;
+  puedeEnviar?: boolean;
   mensajes: Mensaje[];
+}
+
+export interface ConversacionResumen {
+  id: number;
+  requerimientoId?: number;
+  requerimientoEstado?: EstadoRequerimiento;
+  activa?: boolean;
+  requerimientoTitulo: string;
+  otroParticipanteNombre: string;
+  otroParticipanteApellido: string;
+  otroParticipanteFotoUrl?: string;
+  ultimoMensaje?: string;
+  abiertaEn: string;
+}
+
+export type TipoEvidencia = 'FOTO' | 'DOCUMENTO';
+
+export interface Evidencia {
+  id: number;
+  urlArchivo: string;
+  tipo: TipoEvidencia;
+  descripcion?: string;
+  subidoEn: string;
 }
 
 export interface ProblemDetail {
@@ -135,4 +209,54 @@ export interface ProblemDetail {
   detail?: string;
   status?: number;
   errors?: Record<string, string>;
+}
+
+export type EstadoDeuda = 'PENDIENTE' | 'PAGADA' | 'VENCIDA';
+export type TipoMetodoPago = 'TARJETA' | 'NEQUI' | 'DAVIPLATA' | 'OTRO';
+export type TipoTransaccion = 'COMISION_MATCH' | 'PAGO_DEUDA' | 'PAGO_TRABAJO';
+export type EstadoTransaccion = 'PENDIENTE' | 'COMPLETADA' | 'FALLIDA';
+
+export interface Deuda {
+  id: number;
+  monto: number;
+  estado: EstadoDeuda;
+  descripcion: string;
+  requerimientoTitulo?: string;
+  creadoEn: string;
+  pagadaEn?: string;
+}
+
+export interface MetodoPago {
+  id: number;
+  tipo: TipoMetodoPago;
+  alias: string;
+  ultimosCuatro?: string;
+  predeterminado: boolean;
+  creadoEn: string;
+}
+
+export interface TransaccionPago {
+  id: number;
+  tipo: TipoTransaccion;
+  monto: number;
+  estado: EstadoTransaccion;
+  referencia?: string;
+  creadoEn: string;
+  completadaEn?: string;
+}
+
+export interface MiDeudaResumen {
+  saldoDeudaAcumulado: number;
+  limiteDeudaMaxima: number;
+  inhabilitadoPorDeuda: boolean;
+  deudasPendientes: Deuda[];
+  historialDeudas: Deuda[];
+  transaccionesRecientes: TransaccionPago[];
+}
+
+export interface MetodoPagoRequest {
+  tipo: TipoMetodoPago;
+  alias: string;
+  ultimosCuatro?: string;
+  predeterminado?: boolean;
 }
